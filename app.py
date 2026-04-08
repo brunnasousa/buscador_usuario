@@ -51,6 +51,7 @@ ARQUIVO_DADOS = "dados.xlsx"
 LOGO = None
 NUMERO_WHATSAPP = "+55 91 98559-5528"
 LINK_WHATSAPP = gerar_link_whatsapp(NUMERO_WHATSAPP)
+SENHA_TEMPORARIA = "semed@2026"
 
 st.markdown("""
 <style>
@@ -181,11 +182,9 @@ def mostrar_logo():
 
     if caminho_logo:
         st.markdown("<div style='margin-top:20px'></div>", unsafe_allow_html=True)
-
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.image(caminho_logo, width=340)
-
         st.markdown("<div style='margin-bottom:10px'></div>", unsafe_allow_html=True)
 
 mostrar_logo()
@@ -261,50 +260,122 @@ if busca:
         )
 
         email_valor = str(registro["email"]).replace("'", "\\'")
+        senha_valor = SENHA_TEMPORARIA.replace("'", "\\'")
+
+        bloco_senha = ""
+        if status == "DESATIVADO":
+            bloco_senha = f"""
+                <div class="senha-label">Senha temporária:</div>
+                <div class="linha-wrap">
+                    <div class="caixa-info caixa-senha">{senha_valor}</div>
+                    <button
+                        onclick="
+                            navigator.clipboard.writeText('{senha_valor}');
+                            const btn = document.getElementById('copy-senha-btn');
+                            btn.innerText = 'Copiado!';
+                            setTimeout(() => btn.innerText = 'Copiar senha', 1500);
+                        "
+                        id="copy-senha-btn"
+                        class="btn-copiar">
+                        Copiar senha
+                    </button>
+                </div>
+            """
 
         components.html(
             f"""
-            <div style="display:flex; gap:12px; align-items:stretch; margin-top:8px; flex-wrap:wrap;">
-                <div style="
-                    flex:1;
-                    min-width:260px;
-                    background:#ffffff;
-                    border:1px solid #dbe4ee;
-                    border-radius:14px;
-                    padding:14px 16px;
-                    color:#334155;
-                    font-size:0.98rem;
-                    min-height:50px;
-                    display:flex;
-                    align-items:center;
-                    box-sizing:border-box;
-                    overflow-wrap:anywhere;">
-                    {email_valor}
+            <style>
+                .info-stack {{
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                    margin-top: 8px;
+                }}
+
+                .linha-wrap {{
+                    display: flex;
+                    gap: 12px;
+                    align-items: stretch;
+                    flex-wrap: nowrap;
+                }}
+
+                .caixa-info {{
+                    flex: 1;
+                    min-width: 0;
+                    background: #ffffff;
+                    border: 1px solid #dbe4ee;
+                    border-radius: 14px;
+                    padding: 14px 16px;
+                    color: #334155;
+                    font-size: 0.98rem;
+                    min-height: 50px;
+                    display: flex;
+                    align-items: center;
+                    box-sizing: border-box;
+                    overflow-wrap: anywhere;
+                    word-break: break-word;
+                }}
+
+                .caixa-senha {{
+                    background: #fff7ed;
+                    border: 1px solid #fed7aa;
+                    color: #9a3412;
+                    font-weight: 600;
+                }}
+
+                .btn-copiar {{
+                    background: #2563eb;
+                    color: white;
+                    border: none;
+                    border-radius: 14px;
+                    padding: 0 18px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    min-height: 50px;
+                    min-width: 170px;
+                }}
+
+                .senha-label {{
+                    font-weight: 700;
+                    color: #0f172a;
+                    margin-top: 2px;
+                    margin-bottom: -2px;
+                    font-size: 1rem;
+                }}
+
+                @media (max-width: 640px) {{
+                    .linha-wrap {{
+                        flex-direction: column;
+                    }}
+
+                    .btn-copiar {{
+                        width: 100%;
+                        min-width: 100%;
+                        padding: 14px 18px;
+                    }}
+                }}
+            </style>
+
+            <div class="info-stack">
+                <div class="linha-wrap">
+                    <div class="caixa-info">{email_valor}</div>
+                    <button
+                        onclick="
+                            navigator.clipboard.writeText('{email_valor}');
+                            const btn = document.getElementById('copy-email-btn');
+                            btn.innerText = 'Copiado!';
+                            setTimeout(() => btn.innerText = 'Copiar email', 1500);
+                        "
+                        id="copy-email-btn"
+                        class="btn-copiar">
+                        Copiar email
+                    </button>
                 </div>
 
-                <button
-                    onclick="
-                        navigator.clipboard.writeText('{email_valor}');
-                        const btn = document.getElementById('copy-btn');
-                        btn.innerText = 'Copiado!';
-                        setTimeout(() => btn.innerText = 'Copiar email', 1500);
-                    "
-                    id="copy-btn"
-                    style="
-                        background:#2563eb;
-                        color:white;
-                        border:none;
-                        border-radius:14px;
-                        padding:0 18px;
-                        font-weight:600;
-                        cursor:pointer;
-                        min-height:50px;
-                        min-width:170px;">
-                    Copiar email
-                </button>
+                {bloco_senha}
             </div>
             """,
-            height=85,
+            height=250 if status == "DESATIVADO" else 140,
         )
 
         st.markdown('</div>', unsafe_allow_html=True)
